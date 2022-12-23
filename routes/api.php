@@ -95,6 +95,33 @@ Route::controller(ProjectController::class)
   });
 
 /**
+ * @todo Group all api related project.
+ */
+Route::controller(ProjectController::class)
+  ->prefix(("journal"))
+  ->middleware(['auth0.authorize.optional'])
+  ->group(function () {
+    /**
+     * @todo Create new project
+     * @var Project $project
+     * */
+    Route::post("/", "createJournal");
+
+    /**
+     * @todo Edit user project
+     * @var EditDTO
+     */
+    Route::patch("/{id}", "editJournal");
+
+    /**
+     * @todo Delete user project
+     * @var String $id
+     */
+    Route::delete("/{id}", "deleteJournal");
+  });
+
+
+/**
  * @todo Delete user project
  * @var String $id
  */

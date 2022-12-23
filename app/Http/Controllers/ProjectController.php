@@ -106,16 +106,15 @@ class ProjectController extends Controller
         /**
          * @todo Find in db following $id
          */
-        $project =
-          Project::where('_id', "=" . $id)
-          ->where("userId", "=" . $userId);
+        $project = Project::where("userId", "=", $userId)
+          ->where("_id", "=", $id);
 
         /**
-         * @todo Return error when not found with the id.
+         * @todo Throw exception when dont found any projects with the Id.
          */
-        if ($project->exists() == false) {
+        if (!$project->exists()) {
           return response()->json([
-            "data" => "Not Found"
+            "data" => "The project with name is already created."
           ], 404, [], JSON_PRETTY_PRINT);
         }
 

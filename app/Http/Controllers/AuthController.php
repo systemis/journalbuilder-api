@@ -105,6 +105,8 @@ class AuthController extends Controller
         "plan" => "silver",
         "team_id" => "a111",
       ),
+      "private" => false,
+      "membership" => "",
       "client_id" => env("AUTH0_CLIENT_ID"),
       "connection" => env("AUTH0_CONNECTION"),
     );
@@ -153,8 +155,7 @@ class AuthController extends Controller
         /**
          * @todo Call external server to update password.
          */
-        error_log(env("AUTH0_AUDIENCE") . "/users".$userId);
-        $response = Http::withToken($token)->patch(env("AUTH0_AUDIENCE") . "users/".$userId, $credential);
+        $response = Http::withToken($token)->patch(env("AUTH0_AUDIENCE") . "users/auth0|".$userId, $credential);
 
         return response()->json([
           'data' => json_decode($response->body(), true),

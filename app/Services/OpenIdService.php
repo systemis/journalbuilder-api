@@ -55,10 +55,12 @@ class OpenIdService
       ], $userResponse->status(), [], JSON_PRETTY_PRINT);
     }
 
+    error_log($userResponse->body());
+
     return $next(
       $request,
       json_decode($response->body())->access_token,
-      json_decode($userResponse->body())->sub,
+      substr(json_decode($userResponse->body())->sub, 6),
     );
   }
 

@@ -38,5 +38,6 @@ class Journal extends Model
     'name',
     'gallery',
     'userId',
+    'projectId',
   ];
 }

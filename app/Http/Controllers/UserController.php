@@ -93,7 +93,7 @@ class UserController extends Controller
         if (!empty($external_payload)) {
           $response = Http::withToken($token)
             ->patch(
-              env("AUTH0_AUDIENCE") . "users/" . $userId,
+              env("AUTH0_AUDIENCE") . "users/auth0|" . $userId,
               $external_payload
             );
 
