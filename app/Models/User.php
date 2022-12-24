@@ -44,6 +44,7 @@ class User extends Model
       'linkedin',
       'twitter',
       'figma',
+      'private',
     ];
 
     /**
@@ -61,6 +62,5 @@ class User extends Model
       'twitter',
       'figma',
       'private',
-      
     ];
 }

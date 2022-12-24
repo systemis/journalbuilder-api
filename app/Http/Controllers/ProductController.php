@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\OpenIdService;
-use App\Models\Project;
+use App\Models\Product;
+use App\Models\User;
+use Throwable;
 
-class ProjectController extends Controller
+class ProductController extends Controller
 {
   /**
    * @todo Declare openId service to use.
@@ -24,81 +26,106 @@ class ProjectController extends Controller
   /**
    * @todo The function to create product.
    */
-  public function createProject(Request $request)
+  public function createProduct(Request $request)
   {
-    /** @var Project $project */
-    global $dto;
+    /** @var Product $product */
     $dto = array(
       "name" => $request->input("name"),
-      "image" => $request->input("image"),
+      "gallery" => $request->input("gallery"),
       "description" => $request->input("description"),
     );
 
     return $this->openIdService->openIdIntrospect(
       $request,
-      function ($userId) use ($dto) {
+      function ($userId) use ($dto, $request) {
         /**
-         * @todo Assign userId for dto to create project.
+         * @todo Assign userId for dto to create product.
          */
         $dto["userId"] = $userId;
-        error_log(json_encode($dto));
 
         /**
-         * @todo Check if the project is already exists with this name.
+         * @todo Check if the product is already exists with this name.
          */
-        $exist = Project::where("userId", "=", $userId)
+        $exist = Product::where("userId", "=", $userId)
           ->where("name", "=", $dto["name"])->exists();
         if ($exist) {
           return response()->json([
-            "data" => "The project with name is already created."
+            "data" => "The product with name is already created."
           ], 409, [], JSON_PRETTY_PRINT);
         }
 
         /**
          * @todo Now create new project with dto.
          */
-        $project = new Project;
-        $project->name = $dto["name"];
-        $project->image = $dto["image"];
-        $project->description = $dto["description"];
-        $project->userId = $dto["userId"];
-        $project->save();
+        $product = new Product;
+        $product->name = $dto["name"];
+        $product->gallery = $dto["gallery"];
+        $product->description = $dto["description"];
+        $product->userId = $dto["userId"];
+
+        /**
+         * @todo Assign tags to product if exist tags in request
+         */
+        if ($request->input("tags")) {
+          $product->tags = $request->input("tags");
+        }
+
+        /**
+         * @todo Assign projectId to product if exist projectId in request
+         */
+        if ($request->input("projectId")) {
+          $product->projectId = $request->input("projectId");
+        }
+
+        $product->save();
 
         return response()->json([
-          "data" => $project,
+          "data" => $product,
         ], 200, [], JSON_PRETTY_PRINT);
       }
     );
   }
 
   /**
-   * @todo The function to get detail of project following id.
+   * @todo The function to get detail of product following id.
    */
-  public function getProject(Request $request, $id)
+  public function getProduct(Request $request, $id)
   {
-    /**
-     * @todo Find in db following $id
-     */
-    $project = Project::find($id);
+    try {
+      /**
+       * @todo Find in db following $id
+       */
+      $product = Product::find($id);
 
-    /**
-     * @todo Return error when not found with the id.
-     */
-    if ($project->exists() == false) {
+      /**
+       * @todo Return error when not found with the id.
+       */
+      if ($product->exists() == false) {
+        return response()->json([
+          "data" => "Not Found"
+        ], 401, [], JSON_PRETTY_PRINT);
+      }
+
+      /**
+       * @todo Assign user info to product
+       */
+      $user = User::find($product["userId"]);
+      $product["user"] = $user;
+
       return response()->json([
-        "data" => "Not Found"
-      ], 401, [], JSON_PRETTY_PRINT);
+        "data" => $product,
+      ], 200, [], JSON_PRETTY_PRINT);
+    } catch (Throwable $e) {
+      return response()->json([
+        "data" => "Bad request"
+      ], 400, [], JSON_PRETTY_PRINT);
     }
-
-    return response()->json([
-      "data" => $project,
-    ], 200, [], JSON_PRETTY_PRINT);
   }
 
   /**
-   * @todo The function to delete project with the id.
+   * @todo The function to delete product with the id.
    */
-  public function deleteProject(Request $request, $id)
+  public function deleteProduct(Request $request, $id)
   {
     return $this->openIdService->openIdIntrospect(
       $request,
@@ -106,31 +133,31 @@ class ProjectController extends Controller
         /**
          * @todo Find in db following $id
          */
-        $project = Project::where("userId", "=", $userId)
+        $product = Product::where("userId", "=", $userId)
           ->where("_id", "=", $id);
 
         /**
          * @todo Throw exception when dont found any projects with the Id.
          */
-        if (!$project->exists()) {
+        if (!$product->exists()) {
           return response()->json([
-            "data" => "The project with name is already created."
+            "data" => "Not found product"
           ], 404, [], JSON_PRETTY_PRINT);
         }
 
         /**
          * @todo Delete document.
          */
-        $project->delete();
+        $product->delete();
         return response()->json([], 200, [], JSON_PRETTY_PRINT);
       }
     );
   }
 
   /**
-   * @todo The function to get project list of a user
+   * @todo The function to get product list of a user
    */
-  public function getProjects(Request $request)
+  public function getProducts(Request $request)
   {
     /**
      * @todo Loop in @var $request and assign into query parameters to execute the document query.
@@ -143,16 +170,16 @@ class ProjectController extends Controller
     /**
      * @todo Find in db following $id
      */
-    $projects = Project::where($query)->get();
+    $products = Product::where($query)->get();
     return response()->json([
-      "data" => $projects,
+      "data" => $products,
     ], 200, [], JSON_PRETTY_PRINT);
   }
 
   /**
    * @todo The function to edit product of user
    */
-  public function editProject(Request $request, $id)
+  public function editProduct(Request $request, $id)
   {
     return $this->openIdService->openIdIntrospect(
       $request,
@@ -160,38 +187,38 @@ class ProjectController extends Controller
         /**
          * @todo Find in db following $id
          */
-        $project = Project::where("userId", "=", $userId)
+        $product = Product::where("userId", "=", $userId)
           ->where("_id", "=", $id);
 
         /**
          * @todo Throw exception when dont found any projects with the Id.
          */
-        if (!$project->exists()) {
+        if (!$product->exists()) {
           return response()->json([
-            "data" => "The project with name is already created."
+            "data" => "The product with name is already created."
           ], 404, [], JSON_PRETTY_PRINT);
         }
 
         /**
          * @todo Get document.
          */
-        $project = $project->first();
+        $product = $product->first();
 
         /**
          * @todo Loop in @var $request and assign into query parameters to execute the document query.
          */
         foreach ($request->except('_token') as $key => $value) {
-          if (in_array($key, Project::$columns)) {
-            $project->$key = $value;
+          if (in_array($key, Product::$columns)) {
+            $product->$key = $value;
           }
         }
 
         /**
          * @todo Update document.
          */
-        $project->save();
+        $product->save();
         return response()->json([
-          "data" => $project,
+          "data" => $product,
         ], 200, [], JSON_PRETTY_PRINT);
       }
     );

@@ -155,11 +155,27 @@ class AuthController extends Controller
         /**
          * @todo Call external server to update password.
          */
-        $response = Http::withToken($token)->patch(env("AUTH0_AUDIENCE") . "users/auth0|".$userId, $credential);
+        $response = Http::withToken($token)->patch(env("AUTH0_AUDIENCE") . "users/auth0|" . $userId, $credential);
 
         return response()->json([
           'data' => json_decode($response->body(), true),
         ], $response->status(), [], JSON_PRETTY_PRINT);
+      }
+    );
+  }
+
+  /**
+   * @todo The function get user's roles.
+   */
+  public function getRoles(Request $request)
+  {
+    return $this->openIdService->gaurd(
+      $request,
+      "admin",
+      function ($data) {
+        return response()->json([
+          "data" => $data,
+        ], 200, [], JSON_PRETTY_PRINT);
       }
     );
   }

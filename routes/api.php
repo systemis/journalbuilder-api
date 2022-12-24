@@ -3,6 +3,8 @@
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TagController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -66,6 +68,11 @@ Route::controller(AuthController::class)
      * @todo The endpoint to update user password.
      */
     Route::patch("/password", "changePassword");
+
+    /**
+     * @todo The endpoint to get role of user.
+     */
+    Route::get("/roles", "getRoles");
   });
 
 /**
@@ -85,7 +92,7 @@ Route::controller(ProjectController::class)
      * @todo Edit user project
      * @var EditDTO
      */
-    Route::patch("/{id}", "editProjecct");
+    Route::patch("/{id}", "editProject");
 
     /**
      * @todo Delete user project
@@ -97,28 +104,71 @@ Route::controller(ProjectController::class)
 /**
  * @todo Group all api related project.
  */
-Route::controller(ProjectController::class)
-  ->prefix(("journal"))
+Route::controller(ProductController::class)
+  ->prefix(("product"))
   ->middleware(['auth0.authorize.optional'])
   ->group(function () {
     /**
-     * @todo Create new project
-     * @var Project $project
+     * @todo Create new product
+     * @var Product $product
      * */
-    Route::post("/", "createJournal");
+    Route::post("/", "createProduct");
 
     /**
-     * @todo Edit user project
-     * @var EditDTO
+     * @todo Edit user product
+     * @var EditDto
      */
-    Route::patch("/{id}", "editJournal");
+    Route::patch("/{id}", "editProduct");
 
     /**
-     * @todo Delete user project
+     * @todo Get product detail
+     * @var String id
+     */
+    Route::get("/detail", "getProduct");
+
+    /**
+     * @todo Get list product
+     * @var Params query
+     */
+    Route::get("/", "getProducts");
+
+    /**
+     * @todo Delete user product
      * @var String $id
      */
-    Route::delete("/{id}", "deleteJournal");
+    Route::delete("/{id}", "deleteProduct");
   });
+
+/**
+ * @todo Group all api related admin tags.
+ */
+Route::controller(TagController::class)
+  ->prefix(("admin"))
+  ->middleware(['auth0.authorize.optional'])
+  ->group(function () {
+    /**
+     * @todo Create new tag
+     * @var Tag $tag
+     * */
+    Route::post("/tag", "createTag");
+
+    /**
+     * @todo Edit tag.
+     * @var EditTagDto
+     */
+    Route::patch("/tags/{id}", "editTag");
+
+    /**
+     * @todo Delete tag
+     * @var String $id
+     */
+    Route::delete("/{id}", "deleteTag");
+  });
+
+/**
+ * @todo Get tags
+ */
+Route::get("/tags", [TagController::class, "getTags"]);
 
 
 /**

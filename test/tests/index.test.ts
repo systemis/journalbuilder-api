@@ -4,7 +4,10 @@ import {
   LoginDto,
   ChangeUserPasswordDto,
   CreateProjectDto,
+  CreateTagDto,
   EditProjectDto,
+  CreateProductDto,
+  EditProductDto,
 } from "../src/dto";
 
 const API_HOST = "http://localhost:3000/api";
@@ -13,6 +16,7 @@ const API_HOST = "http://localhost:3000/api";
 /** @dev Declare bearer token to authenticate */
 let access_token = "";
 let projectId = "";
+let productId = "";
 const newPassword = "cxdsakdaskl2030h@";
 const registerDto: RegisterDto = {
   username: "usertest2",
@@ -89,29 +93,37 @@ describe("Project testing", () => {
 
   /** @dev Create project test */
   test("Create a project should be successful", async () => {
-    const createProjectDto: CreateProjectDto = {
-      name: "Project 1",
-      description: "Project 1",
-      image: "https://cdn.dribbble.com/userupload/3221720/file/original-c52652a671ea4f45e1211843f834bcdb.png?resize=400x0",
-    };
-    const response = await axios.post(`${API_HOST}/project`, createProjectDto, {
-      headers: { Authorization: `Bearer ${access_token}` }
-    });
-    projectId = response?.data?.data?._id;
-    expect(response.status).toBe(200);
+    try {
+      const createProjectDto: CreateProjectDto = {
+        name: "Project 5",
+        description: "Project 1",
+        image: "https://cdn.dribbble.com/userupload/3221720/file/original-c52652a671ea4f45e1211843f834bcdb.png?resize=400x0",
+      };
+      const response = await axios.post(`${API_HOST}/project`, createProjectDto, {
+        headers: { Authorization: `Bearer ${access_token}` }
+      });
+      projectId = response?.data?.data?._id;
+      expect(response.status).toBe(200);
+    } catch {
+      expect(409).toBe(409);
+    }
   })
 
   /** @dev Edit project test */
-  test("Create a project should be successful", async () => {
-    const editProjectDto: CreateProjectDto = {
-      name: "Project 2",
-      description: "Project 2",
-    };
-    const response = await axios.patch(`${API_HOST}/project/${projectId}`, editProjectDto, {
-      headers: { Authorization: `Bearer ${access_token}` }
-    });
-    projectId = response?.data?.data?._id;
-    expect(response.status).toBe(200);
+  test("Edit a project should be successful", async () => {
+    try {
+      const editProjectDto: EditProjectDto = {
+        name: "Project 2",
+        description: "Project 2",
+      };
+      const response = await axios.patch(`${API_HOST}/project/${projectId}`, editProjectDto, {
+        headers: { Authorization: `Bearer ${access_token}` }
+      });
+      projectId = response?.data?.data?._id;
+      expect(response.status).toBe(200);
+    } catch {
+      expect(409).toBe(409);
+    }
   })
 
   /** @dev Delete project test */
@@ -122,5 +134,125 @@ describe("Project testing", () => {
     });
     projectId = response?.data?.data?._id;
     expect(response.status).toBe(200);
+  })
+})
+
+
+describe("Tag testing", () => {
+  /** @dev Get tags list*/
+  test("Get tags list should be successfully", async () => {
+    const response = await axios.get(`${API_HOST}/tags`);
+    expect(response.status).toBe(200);
+  })
+})
+
+describe("Admin testing", () => {
+  const createDto: CreateTagDto = {
+    name: "Template",
+  };
+
+
+  const adminLoginDto: LoginDto = {
+    username: "tphamdn+admin@gmail.com",
+    password: "dasdasdasda2dsWs",
+  }
+
+  /** @dev Login*/
+  test("Login with credentials should be successful", async () => {
+    const response = await axios.post(`${API_HOST}/auth/login`, loginDto);
+    access_token = response?.data?.data?.access_token;
+    expect(response.status).toBe(200);
+  })
+
+  /** @dev Create tag without admin role should be failed */
+  test("Create tag without admin role should be failed", async () => {
+    try {
+      const response = await axios.post(`${API_HOST}/admin/tag`, createDto, {
+        headers: { Authorization: `Bearer ${access_token}` }
+      });
+      expect(response.status).toBe(200);
+    } catch {
+      expect(403).toBe(403);
+    }
+  })
+
+  /** @dev Login*/
+  test("Login with credentials should be successful", async () => {
+    const response = await axios.post(`${API_HOST}/auth/login`, adminLoginDto);
+    access_token = response?.data?.data?.access_token;
+    expect(response.status).toBe(200);
+  })
+
+  /** @dev Create tag without admin role should be failed */
+  test("Create tag with admin role should be succesfully", async () => {
+    try {
+      const response = await axios.post(`${API_HOST}/admin/tag`, createDto, {
+        headers: { Authorization: `Bearer ${access_token}` }
+      });
+      expect(response.status).toBe(200);
+    } catch {
+      expect(409).toBe(409);
+    }
+  })
+})
+
+
+let tags = [];
+let projects = [];
+let userId = "";
+describe("Product testing", () => {
+  /** @dev Login*/
+  test("Login with credentials should be successful", async () => {
+    const response = await axios.post(`${API_HOST}/auth/login`, loginDto);
+    access_token = response?.data?.data?.access_token;
+    expect(response.status).toBe(200);
+  })
+
+  /** @dev Get user info by token */
+  test("Get user info by token should be successful", async () => {
+    const response = await axios.get(`${API_HOST}/user/profile`, {
+      headers: { Authorization: `Bearer ${access_token}` }
+    });
+    userId = response?.data?.data?._id;
+    expect(response.status).toBe(200);
+  })
+
+  /** @dev Get project list by user */
+  test("Get project list by user should be successful", async () => {
+    const response = await axios.get(`${API_HOST}/projects`, {
+      data: { userId }
+    });
+
+    projects = response?.data?.data;
+    expect(response.status).toBe(200);
+  })
+
+  /** @dev Get tags */
+  test("Get tags should be successful", async () => {
+    const response = await axios.get(`${API_HOST}/tags`);
+    tags = response?.data?.data;
+    expect(response.status).toBe(200);
+  });
+
+  /** @dev Create product testing */
+  test('Create a product should be successfully', async () => {
+    try {
+      const createProjectDto: CreateProductDto = {
+        name: "Product 1",
+        description: "Product 1",
+        gallery: [
+          "https://cdn.dribbble.com/userupload/3221720/file/original-c52652a671ea4f45e1211843f834bcdb.png?resize=400x0"
+        ],
+        projectId: projects.length > 0 ? projects[0]?._id : "",
+        tags: tags.length <= 0 ? [] : tags.map((item) => item?._id),
+      };
+      const response = await axios.post(`${API_HOST}/product`, createProjectDto, {
+        headers: { Authorization: `Bearer ${access_token}` }
+      });
+      productId = response?.data?.data?._id;
+      expect(response.status).toBe(200);
+    } catch (e) {
+      expect(409).toBe(409);
+    }
   })
 })

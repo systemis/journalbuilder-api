@@ -50,12 +50,11 @@ class OpenIdService
      * @todo Throw error if failed call to external server.
      */
     if ($userResponse->status() != 200) {
+      error_log($userResponse->body());
       return response()->json([
         'data' => json_decode($userResponse->body(), true),
       ], $userResponse->status(), [], JSON_PRETTY_PRINT);
     }
-
-    error_log($userResponse->body());
 
     return $next(
       $request,
@@ -93,6 +92,66 @@ class OpenIdService
      */
     return $next(
       substr(json_decode($response->body())->sub, 6),
+    );
+  }
+
+  /**
+   * @todo The function to condition which user having admin permission or not.
+   * @var Request $request  Network request.
+   * @var callable $next    The callback function to return.
+   */
+  public function gaurd(Request $request, string $target, callable $next)
+  {
+    return $this->idpIntrospect(
+      $request,
+      function ($request, $token, $userId) use ($next, $target) {
+        /**
+         * @todo Call external server to update password.
+         */
+        $response = Http::withToken($token)->get(env("AUTH0_AUDIENCE") . "users/auth0|" . $userId . "/roles");
+
+        /**
+         * @todo Throw error when request failed.
+         */
+        if ($response->status() != 200) {
+          return response()->json(
+            [],
+            $response->status(),
+            [],
+            JSON_PRETTY_PRINT
+          );
+        }
+
+        /**
+         * @todo Get user roles.
+         */
+        $roles = json_decode($response->body(), true);
+
+        /**
+         * @todo Define condition.
+         */
+        $isValid = false;
+
+        /**
+         * @todo Check if target role is exists in user's roles.
+         */
+        foreach ($roles as $role) {
+          if ($role["name"] == $target) {
+            $isValid = true;
+          }
+        }
+
+        /**
+         * @todo Throw 403 error if user dont have permissions.
+         */
+        if (!$isValid) {
+          return response()->json([
+            "data" => "Need admin permission to excute function"
+          ], 403, [], JSON_PRETTY_PRINT);
+        }
+
+        return $next($roles);
+      }
     );
   }
 }
