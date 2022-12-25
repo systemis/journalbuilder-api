@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\ImageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -182,3 +183,10 @@ Route::get("/project/{id}", [ProjectController::class, "getProject"]);
  * @var Request request
  */
 Route::get("/projects", [ProjectController::class, "getProjects"]);
+
+
+/**
+ * @todo Upload a image
+ * @var File file
+ */
+Route::post("/image", [ImageController::class, "uploadImage"]);

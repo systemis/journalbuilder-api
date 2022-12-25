@@ -18,3 +18,4 @@ yarn-error.log
 /.vscode
 /test/node_modules
 .vercel
+/public/images
