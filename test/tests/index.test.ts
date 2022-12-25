@@ -10,7 +10,8 @@ import {
   EditProductDto,
 } from "../src/dto";
 
-const API_HOST = "http://localhost:3000/api";
+// const API_HOST = "http://localhost:3000/api";
+const API_HOST = "https://afternoon-gorge-11599.herokuapp.com/api";
 
 
 /** @dev Declare bearer token to authenticate */
