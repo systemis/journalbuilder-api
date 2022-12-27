@@ -34,6 +34,7 @@ class OpenIdService
      * @todo Throw error if failed call to external server.
      */
     if ($response->status() != 200) {
+      error_log($response->body());
       return response()->json([
         'data' => json_decode($response->body(), true),
       ], $response->status(), [], JSON_PRETTY_PRINT);
@@ -50,7 +51,6 @@ class OpenIdService
      * @todo Throw error if failed call to external server.
      */
     if ($userResponse->status() != 200) {
-      error_log($userResponse->body());
       return response()->json([
         'data' => json_decode($userResponse->body(), true),
       ], $userResponse->status(), [], JSON_PRETTY_PRINT);
@@ -75,12 +75,17 @@ class OpenIdService
      */
     $response = Http::withToken($request->bearerToken())
       ->withHeaders(["Content-Type" => "application/json'"])
-      ->get(env("AUTH0_DOMAIN") . "/userinfo");
+      ->get(env("AUTH0_DOMAIN") . "/tokeninfo", [
+        "id_token" => $request->input("id_token"),
+      ]);
+
 
     /**
      * @todo Throw error if failed call to external server.
      */
+    error_log($response->body());
     if ($response->status() != 200) {
+      error_log($response->body());
       return response()->json([
         'data' => json_decode($response->body(), true),
       ], $response->status(), [], JSON_PRETTY_PRINT);
@@ -91,7 +96,7 @@ class OpenIdService
      * @return Callback
      */
     return $next(
-      substr(json_decode($response->body())->sub, 6),
+      substr(json_decode($response->body())->user_id, 6),
     );
   }
 

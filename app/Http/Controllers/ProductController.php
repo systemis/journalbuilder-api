@@ -123,6 +123,51 @@ class ProductController extends Controller
   }
 
   /**
+   * @todo The function to get detail of product following id.
+   */
+  public function getProductByOwner(Request $request, $id)
+  {
+    try {
+      return $this->openIdService->openIdIntrospect(
+        $request,
+        function ($userId) use ($request, $id) {
+          /**
+           * @todo Find in db following $id
+           */
+          $product = Product::where("userId", "=", $userId)
+            ->where("_id", "=", $id);
+
+          /**
+           * @todo Throw exception when dont found any projects with the Id.
+           */
+          if (!$product->exists()) {
+            return response()->json([
+              "data" => "The product with name is already created."
+            ], 404, [], JSON_PRETTY_PRINT);
+          }
+
+          /**
+           * @todo Get document.
+           */
+          $product = $product->first();
+
+          /**
+           * @todo Update document.
+           */
+          $product->save();
+          return response()->json([
+            "data" => $product,
+          ], 200, [], JSON_PRETTY_PRINT);
+        }
+      );
+    } catch (Throwable $e) {
+      return response()->json([
+        "data" => "Bad request"
+      ], 400, [], JSON_PRETTY_PRINT);
+    }
+  }
+
+  /**
    * @todo The function to delete product with the id.
    */
   public function deleteProduct(Request $request, $id)
@@ -195,7 +240,7 @@ class ProductController extends Controller
          */
         if (!$product->exists()) {
           return response()->json([
-            "data" => "The product with name is already created."
+            "data" => "Not found product with following name"
           ], 404, [], JSON_PRETTY_PRINT);
         }
 

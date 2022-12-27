@@ -9,15 +9,15 @@ import {
   CreateProductDto,
   EditProductDto,
 } from "../src/dto";
+import { ProductEntity } from "../src/entities";
 
-// const API_HOST = "http://localhost:3000/api";
-const API_HOST = "https://afternoon-gorge-11599.herokuapp.com/api";
+const API_HOST = "http://localhost:3000/api";
+// const API_HOST = "https://afternoon-gorge-11599.herokuapp.com/api";
 
 
 /** @dev Declare bearer token to authenticate */
 let access_token = "";
-let projectId = "";
-let productId = "";
+let id_token = "";
 const newPassword = "cxdsakdaskl2030h@";
 const registerDto: RegisterDto = {
   username: "usertest2",
@@ -48,6 +48,7 @@ describe("Authentication testing", () => {
   test("Login with credentials should be successful", async () => {
     const response = await axios.post(`${API_HOST}/auth/login`, loginDto);
     access_token = response?.data?.data?.access_token;
+    id_token = response?.data?.data?.id_token;
     expect(response.status).toBe(200);
   })
 
@@ -67,6 +68,7 @@ describe("Authentication testing", () => {
     try {
       const response = await axios.post(`${API_HOST}/auth/login`, loginDto);
       access_token = response?.data?.access_token;
+      id_token = response?.data?.id_token;
     } catch {
       expect(400).toBe(400);
     }
@@ -79,18 +81,20 @@ describe("Authentication testing", () => {
       password: newPassword,
     });
     access_token = response?.data?.access_token;
+    id_token = response?.data?.id_token;
     expect(response.status).toBe(200);
   })
 });
 
 describe("Project testing", () => {
-  /** @dev Login*/
-  test("Login with credentials should be successful", async () => {
-    const response = await axios.post(`${API_HOST}/auth/login`, loginDto);
-    access_token = response?.data?.data?.access_token;
-    expect(response.status).toBe(200);
-  })
+  let projectId = "";
+  let access_token = "";
+  let id_token = "";
 
+  beforeEach(async () => {
+    const response = await axios.post(`${API_HOST}/auth/login`, loginDto);
+    id_token = response?.data?.data?.id_token;
+  });
 
   /** @dev Create project test */
   test("Create a project should be successful", async () => {
@@ -100,24 +104,49 @@ describe("Project testing", () => {
         description: "Project 1",
         image: "https://cdn.dribbble.com/userupload/3221720/file/original-c52652a671ea4f45e1211843f834bcdb.png?resize=400x0",
       };
-      const response = await axios.post(`${API_HOST}/project`, createProjectDto, {
+      const response = await axios.post(`${API_HOST}/project`, {
+        ...createProjectDto,
+        id_token,
+      }, {
         headers: { Authorization: `Bearer ${access_token}` }
       });
-      projectId = response?.data?.data?._id;
+      projectId = response?.data?.data?.sub;
       expect(response.status).toBe(200);
     } catch {
       expect(409).toBe(409);
     }
   })
 
+  beforeEach(async () => {
+    const userResponse = await axios.get(`${API_HOST}/user/profile`, {
+      data: { id_token, },
+      headers: { Authorization: `Bearer ${access_token}` }
+    });
+
+    const getProjectResponse = await axios.get(`${API_HOST}/projects`, {
+      data: {
+        userId: userResponse?.data?.data?.sub,
+      }
+    })
+
+    const projects = getProjectResponse.data?.data;
+    if (projects.length) {
+      projectId = projects[projects.length - 1]._id;
+    }
+  })
+
   /** @dev Edit project test */
   test("Edit a project should be successful", async () => {
     try {
+      console.log("projects", projectId);
       const editProjectDto: EditProjectDto = {
         name: "Project 2",
         description: "Project 2",
       };
-      const response = await axios.patch(`${API_HOST}/project/${projectId}`, editProjectDto, {
+      const response = await axios.patch(`${API_HOST}/project/${projectId}`, {
+        ...editProjectDto,
+        id_token,
+      }, {
         headers: { Authorization: `Bearer ${access_token}` }
       });
       projectId = response?.data?.data?._id;
@@ -129,8 +158,8 @@ describe("Project testing", () => {
 
   /** @dev Delete project test */
   test("Delete a project should be successful", async () => {
-    console.log(projectId);
     const response = await axios.delete(`${API_HOST}/project/${projectId}`, {
+      data: { id_token, },
       headers: { Authorization: `Bearer ${access_token}` }
     });
     projectId = response?.data?.data?._id;
@@ -162,13 +191,17 @@ describe("Admin testing", () => {
   test("Login with credentials should be successful", async () => {
     const response = await axios.post(`${API_HOST}/auth/login`, loginDto);
     access_token = response?.data?.data?.access_token;
+    id_token = response?.data?.data?.id_token;
     expect(response.status).toBe(200);
   })
 
   /** @dev Create tag without admin role should be failed */
   test("Create tag without admin role should be failed", async () => {
     try {
-      const response = await axios.post(`${API_HOST}/admin/tag`, createDto, {
+      const response = await axios.post(`${API_HOST}/admin/tag`, {
+        ...createDto,
+        id_token,
+      }, {
         headers: { Authorization: `Bearer ${access_token}` }
       });
       expect(response.status).toBe(200);
@@ -181,78 +214,21 @@ describe("Admin testing", () => {
   test("Login with credentials should be successful", async () => {
     const response = await axios.post(`${API_HOST}/auth/login`, adminLoginDto);
     access_token = response?.data?.data?.access_token;
+    id_token = response?.data?.data?.id_token;
     expect(response.status).toBe(200);
   })
 
   /** @dev Create tag without admin role should be failed */
   test("Create tag with admin role should be succesfully", async () => {
     try {
-      const response = await axios.post(`${API_HOST}/admin/tag`, createDto, {
+      const response = await axios.post(`${API_HOST}/admin/tag`, {
+        ...createDto,
+        id_token,
+      }, {
         headers: { Authorization: `Bearer ${access_token}` }
       });
       expect(response.status).toBe(200);
     } catch {
-      expect(409).toBe(409);
-    }
-  })
-})
-
-
-let tags = [];
-let projects = [];
-let userId = "";
-describe("Product testing", () => {
-  /** @dev Login*/
-  test("Login with credentials should be successful", async () => {
-    const response = await axios.post(`${API_HOST}/auth/login`, loginDto);
-    access_token = response?.data?.data?.access_token;
-    expect(response.status).toBe(200);
-  })
-
-  /** @dev Get user info by token */
-  test("Get user info by token should be successful", async () => {
-    const response = await axios.get(`${API_HOST}/user/profile`, {
-      headers: { Authorization: `Bearer ${access_token}` }
-    });
-    userId = response?.data?.data?._id;
-    expect(response.status).toBe(200);
-  })
-
-  /** @dev Get project list by user */
-  test("Get project list by user should be successful", async () => {
-    const response = await axios.get(`${API_HOST}/projects`, {
-      data: { userId }
-    });
-
-    projects = response?.data?.data;
-    expect(response.status).toBe(200);
-  })
-
-  /** @dev Get tags */
-  test("Get tags should be successful", async () => {
-    const response = await axios.get(`${API_HOST}/tags`);
-    tags = response?.data?.data;
-    expect(response.status).toBe(200);
-  });
-
-  /** @dev Create product testing */
-  test('Create a product should be successfully', async () => {
-    try {
-      const createProjectDto: CreateProductDto = {
-        name: "Product 1",
-        description: "Product 1",
-        gallery: [
-          "https://cdn.dribbble.com/userupload/3221720/file/original-c52652a671ea4f45e1211843f834bcdb.png?resize=400x0"
-        ],
-        projectId: projects.length > 0 ? projects[0]?._id : "",
-        tags: tags.length <= 0 ? [] : tags.map((item) => item?._id),
-      };
-      const response = await axios.post(`${API_HOST}/product`, createProjectDto, {
-        headers: { Authorization: `Bearer ${access_token}` }
-      });
-      productId = response?.data?.data?._id;
-      expect(response.status).toBe(200);
-    } catch (e) {
       expect(409).toBe(409);
     }
   })

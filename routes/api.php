@@ -122,16 +122,10 @@ Route::controller(ProductController::class)
     Route::patch("/{id}", "editProduct");
 
     /**
-     * @todo Get product detail
+     * @todo Get edit detail product
      * @var String id
      */
-    Route::get("/detail", "getProduct");
-
-    /**
-     * @todo Get list product
-     * @var Params query
-     */
-    Route::get("/", "getProducts");
+    Route::get("/owner/{id}", "getProductByOwner");
 
     /**
      * @todo Delete user product
@@ -190,3 +184,15 @@ Route::get("/projects", [ProjectController::class, "getProjects"]);
  * @var File file
  */
 Route::post("/image", [ImageController::class, "uploadImage"]);
+
+/**
+ * @todo Get list product
+ * @var Params query
+ */
+Route::get("/products", [ProductController::class, "getProducts"]);
+
+/**
+ * @todo Get product detail
+ * @var String id
+ */
+Route::get("/product/details", [ProductController::class, "getProduct"]);

@@ -41,7 +41,6 @@ class ProjectController extends Controller
          * @todo Assign userId for dto to create project.
          */
         $dto["userId"] = $userId;
-        error_log(json_encode($dto));
 
         /**
          * @todo Check if the project is already exists with this name.
