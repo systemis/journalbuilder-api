@@ -7,8 +7,8 @@ import {
 } from "../src/dto";
 import { ProductEntity } from "../src/entities";
 
-const API_HOST = "http://localhost:3000/api";
-// const API_HOST = "https://afternoon-gorge-11599.herokuapp.com/api";
+// const API_HOST = "http://localhost:3000/api";
+const API_HOST = "https://afternoon-gorge-11599.herokuapp.com/api";
 
 
 /** @dev Declare bearer token to authenticate */
@@ -46,6 +46,7 @@ describe("Product testing", () => {
   });
 
   beforeAll(async () => {
+    jest.setTimeout(600000);
     try {
       const credentail = (await axios.post(`${API_HOST}/auth/login`, loginDto))?.data?.data;
       access_token = credentail?.access_token
@@ -100,6 +101,7 @@ describe("Product testing", () => {
   })
 
   beforeAll(async () => {
+    jest.setTimeout(600000);
     const getProductsResponse = await axios.get(`${API_HOST}/products`, {
       data: { userId }
     })
@@ -165,6 +167,7 @@ describe("Delete product", () => {
   });
 
   beforeAll(async () => {
+    jest.setTimeout(600000);
     try {
       const credentail = (await axios.post(`${API_HOST}/auth/login`, loginDto))?.data?.data;
       access_token = credentail?.access_token
