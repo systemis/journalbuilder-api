@@ -202,3 +202,4 @@ Route::get("/products", [ProductController::class, "getProducts"]);
  * @var String id
  */
 Route::get("/product/details", [ProductController::class, "getProduct"]);
+

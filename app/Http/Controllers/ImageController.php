@@ -6,28 +6,19 @@ use Illuminate\Http\Request;
 
 class ImageController extends Controller
 {
-  /**
-   * @todo The function to upload image.
-   */
   public function uploadImage(Request $request)
   {
-    /**
-     * @todo Validate size and type of file.
-     * @var Image $image
-     * */
     $this->validate($request, [
       'image' => 'required|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
     ]);
 
-    /**
-     * @todo Excute storaging file.
-     */
-    $file = $request->file('image');
-    $filename = date('YmdHi') . $file->getClientOriginalName();
-    $file->move(public_path('images'), $filename);
+
+    $file= $request->file('image');
+    $filename= date('YmdHi').$file->getClientOriginalName();
+    $file-> move(public_path('images'), $filename);
 
     return response()->json([
-      "data" => "https://afternoon-gorge-11599.herokuapp.com/images/" . $filename,
+      "data" => "https://afternoon-gorge-11599.herokuapp.com/images/".$filename,
     ], 200, [], JSON_PRETTY_PRINT);
   }
 }
