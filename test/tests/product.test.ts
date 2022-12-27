@@ -229,11 +229,11 @@ describe("Delete product", () => {
   });
 
   /** @dev Remove product testing */
-  // test("Remove product should be successfully", async () => {
-  //   const response = await axios.delete(`${API_HOST}/product/${productId}`, {
-  //     data: { id_token },
-  //     headers: { Authorization: `Bearer ${access_token}` }
-  //   });
-  //   expect(response.status).toBe(200);
-  // })
+  test("Remove product should be successfully", async () => {
+    const response = await axios.delete(`${API_HOST}/product/${productId}`, {
+      data: { id_token },
+      headers: { Authorization: `Bearer ${access_token}` }
+    });
+    expect(response.status).toBe(200);
+  })
 })
