@@ -62,6 +62,8 @@ class ProductController extends Controller
         $product->gallery = $dto["gallery"];
         $product->description = $dto["description"];
         $product->userId = $dto["userId"];
+        $product->view = 0;
+        $product->reactions = [];
 
         /**
          * @todo Assign tags to product if exist tags in request
@@ -257,6 +259,56 @@ class ProductController extends Controller
             $product->$key = $value;
           }
         }
+
+        /**
+         * @todo Update document.
+         */
+        $product->save();
+        return response()->json([
+          "data" => $product,
+        ], 200, [], JSON_PRETTY_PRINT);
+      }
+    );
+  }
+
+  /** @todo The function to react to the product. */
+  public function react(Request $request, $id)
+  {
+    return $this->openIdService->openIdIntrospect(
+      $request,
+      function ($userId) use ($id) {
+        /**
+         * @todo Find in db following $id
+         */
+        $product = Product::where("_id", "=", $id);
+
+        /**
+         * @todo Throw exception when dont found any projects with the Id.
+         */
+        if (!$product->exists()) {
+          return response()->json([
+            "data" => "Not found product"
+          ], 404, [], JSON_PRETTY_PRINT);
+        }
+
+        /** @todo Get entity. */
+        $product = $product->first();
+
+        /**
+         * @todo Handle to like or unline product.
+         */
+        $reactions = $product->reactions;
+        $index = array_search($userId, $reactions);
+        if (count($reactions) && ($index || $reactions[0] == $userId)) {
+          array_splice($reactions, $index, 1);
+        } else {
+          array_push($reactions, $userId);
+        }
+
+        /**
+         * @todo Update schema.
+         */
+        $product->reactions = $reactions;
 
         /**
          * @todo Update document.

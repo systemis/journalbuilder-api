@@ -83,7 +83,6 @@ class OpenIdService
     /**
      * @todo Throw error if failed call to external server.
      */
-    error_log($response->body());
     if ($response->status() != 200) {
       error_log($response->body());
       return response()->json([

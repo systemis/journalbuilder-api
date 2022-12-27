@@ -132,6 +132,12 @@ Route::controller(ProductController::class)
      * @var String $id
      */
     Route::delete("/{id}", "deleteProduct");
+
+    /**
+     * @todo React to the product
+     * @var String $id
+     */
+    Route::patch("/react/{id}", "react");
   });
 
 /**
