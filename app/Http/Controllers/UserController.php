@@ -118,4 +118,32 @@ class UserController extends Controller
       }
     );
   }
+
+  public function getPublicUser(Request $request, string $id)
+  {
+    return $this->openIdService->idpPublic(
+      function ($token) use ($id) {
+        $response = Http::withToken($token)
+          ->get(
+            env("AUTH0_AUDIENCE") . "users",
+            array(
+              "q" => "auth0|" . $id,
+              "auth0|" => "v3",
+            )
+          );
+
+        /**
+         * @todo Find user in database with sub id.
+         */
+        $user = User::where("sub", $id)->first();
+
+        /**
+         * @return Response.
+         */
+        return response()->json([
+          "data" => $user,
+        ], 200, [], JSON_PRETTY_PRINT);
+      }
+    );
+  }
 }

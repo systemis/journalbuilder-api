@@ -64,6 +64,44 @@ class OpenIdService
   }
 
   /**
+   * @todo The function to instrospect token to gant write permission with credential.
+   * @var Request $request  Network request.
+   * @var callable $next    The callback function to return.
+   */
+  public function idpPublic(callable $next)
+  {
+    /**
+     * @todo Instropect permission
+     * @var Request
+     * */
+    $credential = array(
+      "audience" => env("AUTH0_AUDIENCE"),
+      "client_id" => env("AUTH0_CLIENT_ID"),
+      "client_secret" => env("AUTH0_SECRET"),
+      "grant_type" => "client_credentials",
+    );
+
+    /**
+     * @todo Introspect with external api by request credentials.
+     */
+    $response = Http::post(env("AUTH0_DOMAIN") . "/oauth/token", $credential);
+
+    /**
+     * @todo Throw error if failed call to external server.
+     */
+    if ($response->status() != 200) {
+      error_log($response->body());
+      return response()->json([
+        'data' => json_decode($response->body(), true),
+      ], $response->status(), [], JSON_PRETTY_PRINT);
+    }
+
+    return $next(
+      json_decode($response->body())->access_token,
+    );
+  }
+
+  /**
    * @todo The function to instrospect token to gant read permission with credential.
    * @var Request $request  Network request.
    * @var callable $next    The callback function to return.

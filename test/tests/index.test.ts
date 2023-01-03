@@ -6,8 +6,6 @@ import {
   CreateProjectDto,
   CreateTagDto,
   EditProjectDto,
-  CreateProductDto,
-  EditProductDto,
 } from "../src/dto";
 import { ProductEntity } from "../src/entities";
 

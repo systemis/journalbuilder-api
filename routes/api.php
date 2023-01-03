@@ -203,3 +203,8 @@ Route::get("/products", [ProductController::class, "getProducts"]);
  */
 Route::get("/product/details", [ProductController::class, "getProduct"]);
 
+/**
+ * @todo Get user public detail
+ * @var String id
+ */
+Route::get("/user/public/{id}", [UserController::class, "getPublicUser"]);
