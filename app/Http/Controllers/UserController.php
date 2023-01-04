@@ -123,7 +123,7 @@ class UserController extends Controller
   {
     return $this->openIdService->idpPublic(
       function ($token) use ($id) {
-        $response = Http::withToken($token)
+        Http::withToken($token)
           ->get(
             env("AUTH0_AUDIENCE") . "users",
             array(

@@ -111,8 +111,14 @@ class ProductController extends Controller
       /**
        * @todo Assign user info to product
        */
-      $user = User::find($product["userId"]);
-      $product["user"] = $user;
+      $user = User::where("sub", "=", $product["userId"])->first();
+      if ($user) {
+        $product["owner"] = array(
+          "name" => $user["name"],
+          "picture" => $user["picture"],
+          "username" => $user["username"],
+        );
+      }
 
       return response()->json([
         "data" => $product,
@@ -218,6 +224,21 @@ class ProductController extends Controller
      * @todo Find in db following $id
      */
     $products = Product::where($query)->get();
+
+    /**
+     * @todo Assign user info to product
+     */
+    foreach ($products as $product) {
+      $user = User::where("sub", "=", $product["userId"])->first();
+      if ($user) {
+        $product["owner"] = array(
+          "name" => $user["name"],
+          "picture" => $user["picture"],
+          "username" => $user["username"],
+        );
+      }
+    }
+
     return response()->json([
       "data" => $products,
     ], 200, [], JSON_PRETTY_PRINT);

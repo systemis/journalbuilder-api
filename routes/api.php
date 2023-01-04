@@ -201,7 +201,7 @@ Route::get("/products", [ProductController::class, "getProducts"]);
  * @todo Get product detail
  * @var String id
  */
-Route::get("/product/details", [ProductController::class, "getProduct"]);
+Route::get("/product/details/{id}", [ProductController::class, "getProduct"]);
 
 /**
  * @todo Get user public detail
