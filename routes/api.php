@@ -143,7 +143,7 @@ Route::controller(ProductController::class)
 /**
  * @todo Group all api related admin tags.
  */
-Route::controller(TagController::class)
+Route::controller()
   ->prefix(("admin"))
   ->middleware(['auth0.authorize.optional'])
   ->group(function () {
@@ -151,19 +151,25 @@ Route::controller(TagController::class)
      * @todo Create new tag
      * @var Tag $tag
      * */
-    Route::post("/tag", "createTag");
+    Route::post("/tag", [TagController::class, "createTag"]);
 
     /**
      * @todo Edit tag.
      * @var EditTagDto
      */
-    Route::patch("/tags/{id}", "editTag");
+    Route::patch("/tags/{id}", [TagController::class, "editTag"]);
 
     /**
      * @todo Delete tag
      * @var String $id
      */
-    Route::delete("/{id}", "deleteTag");
+    Route::delete("/{id}", [TagController::class, "deleteTag"]);
+
+    /**
+     * @todo Login Admin
+     * @var Payload
+     */
+    Route::post("/auth/login", [AuthController::class, "loginAdmin"]);
   });
 
 /**

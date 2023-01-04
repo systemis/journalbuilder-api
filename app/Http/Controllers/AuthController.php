@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\User;
 use App\Services\OpenIdService;
+use Error;
 
 class AuthController extends Controller
 {
@@ -22,7 +23,10 @@ class AuthController extends Controller
     $this->openIdService = new OpenIdService();
   }
 
-  public function gantAccessToken($username, $password, $scope)
+  /**
+   * @todo The function to login external api.
+   */
+  public function subExternal($username, $password, $scope)
   {
     /**
      * @todo Initialize form body to request to  server.
@@ -49,6 +53,15 @@ class AuthController extends Controller
      * @todo Login with external api by request credentials.
      */
     $response = Http::post(env("AUTH0_DOMAIN") . "/oauth/token", $credential);
+    return $response;
+  }
+
+  public function gantAccessToken($username, $password, $scope)
+  {
+    /**
+     * @todo Login with external api by request credentials.
+     */
+    $response = $this->subExternal($username, $password, $scope);
 
     return response()->json([
       'data' => json_decode($response->body(), true),
@@ -176,6 +189,89 @@ class AuthController extends Controller
         return response()->json([
           "data" => $data,
         ], 200, [], JSON_PRETTY_PRINT);
+      }
+    );
+  }
+
+  /**
+   * @todo The function to login with admin permission.
+   */
+  public function loginAdmin(Request $request)
+  {
+    /**
+     * @todo Initialize form body to request to  server.
+     * @todo Login with external api by request credentials.
+     */
+    $authResponse = $this->subExternal(
+      $request->input("username"),
+      $request->input("password"),
+      "read"
+    );
+
+    if ($authResponse->status() != 200) {
+      return response()->json([
+        "data" => json_decode($authResponse->body())
+      ], $authResponse->status(), [], JSON_PRETTY_PRINT);
+    }
+
+    $token = json_decode($authResponse->body(), true)["access_token"];
+
+    /**
+     * @todo Valid user profile with access token.
+     */
+    $userResponse = Http::withToken($token)
+      ->withHeaders(["Content-Type" => "application/json'"])
+      ->get(env("AUTH0_DOMAIN") . "/userinfo");
+
+    /**
+     * @todo Throw error if failed call to external server.
+     */
+    if ($userResponse->status() != 200) {
+      return response()->json([
+        'data' => json_decode($userResponse->body(), true),
+      ], $userResponse->status(), [], JSON_PRETTY_PRINT);
+    }
+
+    return $this->openIdService->idpPublic(
+      function ($token) use ($authResponse, $userResponse) {
+        error_log(json_encode($userResponse));
+        /**
+         * @todo Call external server to update password.
+         */
+        $response = Http::withToken($token)->get(env("AUTH0_AUDIENCE") . "users/" . $userResponse["sub"] . "/roles");
+
+        /**
+         * @todo Get user roles.
+         */
+        $roles = json_decode($response->body(), true);
+        error_log(json_encode($roles));
+
+        /**
+         * @todo Define condition.
+         */
+        $isValid = false;
+
+        /**
+         * @todo Check if target role is exists in user's roles.
+         */
+        foreach ($roles as $role) {
+          if ($role["name"] == "admin") {
+            $isValid = true;
+          }
+        }
+
+        /**
+         * @todo Throw 403 error if user dont have permissions.
+         */
+        if (!$isValid) {
+          return response()->json([
+            "data" => "Need admin permission to excute function"
+          ], 403, [], JSON_PRETTY_PRINT);
+        }
+
+        return response()->json([
+          'data' => json_decode($authResponse->body(), true),
+        ], $authResponse->status(), [], JSON_PRETTY_PRINT);
       }
     );
   }
