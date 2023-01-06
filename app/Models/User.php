@@ -45,6 +45,10 @@ class User extends Model
       'twitter',
       'figma',
       'private',
+      'instagram',
+      'figma',
+      'job',
+      'mobile',
     ];
 
     /**
@@ -61,6 +65,10 @@ class User extends Model
       'linkedin',
       'twitter',
       'figma',
+      'instagram',
       'private',
+      'figma',
+      'job',
+      'mobile',
     ];
 }

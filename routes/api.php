@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProjectController;
@@ -40,6 +41,12 @@ Route::controller(UserController::class)
      * @var User $user
      */
     Route::patch("/profile", "updateProfile");
+
+    /**
+     * @todo Update user password
+     * @var String $password
+     */
+    Route::patch("/password", "updatePassword");
   });
 
 /**
@@ -170,6 +177,22 @@ Route::controller()
      * @var Payload
      */
     Route::post("/auth/login", [AuthController::class, "loginAdmin"]);
+
+    /**
+     * @todo Login Admin
+     * @var Payload
+     */
+    Route::get("/user", [UserController::class, "getUsersAdmin"]);
+
+    /**
+     * @todo Admin app overview
+     */
+    Route::get("/analytics/main-report", [AdminController::class, "getAppOverview"]);
+
+    /**
+     * @todo Reset users password by admin permission
+     */
+    Route::patch("/user/password/reset/{userId}", [AdminController::class, "resetUserPassword"]);
   });
 
 /**
