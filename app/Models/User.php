@@ -28,6 +28,7 @@ class User extends Model
       'given_name',
       'family_name',
       'name',
+      'picture',
     ];
 
 
@@ -49,6 +50,8 @@ class User extends Model
       'figma',
       'job',
       'mobile',
+      'picture',
+      'location',
     ];
 
     /**
@@ -70,5 +73,7 @@ class User extends Model
       'figma',
       'job',
       'mobile',
+      'picture',
+      'location',
     ];
 }

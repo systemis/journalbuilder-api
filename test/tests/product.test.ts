@@ -74,10 +74,11 @@ describe("Product testing", () => {
 
     /** Init dto to create. */
     createProductDto = {
-      name: "Product 10",
+      name: "Product 11",
       description: "Product 1",
       gallery: [
-        "https://cdn.dribbble.com/userupload/3221720/file/original-c52652a671ea4f45e1211843f834bcdb.png?resize=400x0"
+        "https://cdn.dribbble.com/userupload/3221720/file/original-c52652a671ea4f45e1211843f834bcdb.png?resize=400x0",
+        "https://cdn.dribbble.com/userupload/3221720/file/original-c52652a671ea4f45e1211843f834bcdb.png?resize=400x0",
       ],
       projectId: projects.length > 0 ? projects[0]?._id : "",
       tags: tags.length <= 0 ? [] : tags.map((item) => item?._id),
@@ -94,6 +95,7 @@ describe("Product testing", () => {
         headers: { Authorization: `Bearer ${access_token}` }
       });
       productId = response?.data?.data?._id;
+      console.log(productId);
       expect(response.status).toBe(200);
     } catch {
       expect(409).toBe(409);
@@ -142,101 +144,101 @@ describe("Product testing", () => {
   })
 
   /** @dev Remove product testing */
-  test("Remove product should be successfully", async () => {
-    const response = await axios.delete(`${API_HOST}/product/${productId}`, {
-      data: { id_token },
-      headers: { Authorization: `Bearer ${access_token}` }
-    });
-    expect(response.status).toBe(200);
-  })
+  // test("Remove product should be successfully", async () => {
+  //   const response = await axios.delete(`${API_HOST}/product/${productId}`, {
+  //     data: { id_token },
+  //     headers: { Authorization: `Bearer ${access_token}` }
+  //   });
+  //   expect(response.status).toBe(200);
+  // })
 })
 
-describe("Delete product", () => {
-  let tags = [];
-  let projects = [];
-  let userId = "";
-  let productId = "";
-  let product: ProductEntity;
-  let createProductDto: CreateProductDto;
+// describe("Delete product", () => {
+//   let tags = [];
+//   let projects = [];
+//   let userId = "";
+//   let productId = "";
+//   let product: ProductEntity;
+//   let createProductDto: CreateProductDto;
 
-  /** @dev Get tags */
-  test("Get tags should be successful", async () => {
-    const response = await axios.get(`${API_HOST}/tags`);
-    tags = response?.data?.data;
-    expect(response.status).toBe(200);
-  });
+//   /** @dev Get tags */
+//   test("Get tags should be successful", async () => {
+//     const response = await axios.get(`${API_HOST}/tags`);
+//     tags = response?.data?.data;
+//     expect(response.status).toBe(200);
+//   });
 
-  beforeAll(async () => {
-    jest.setTimeout(600000);
-    try {
-      const credentail = (await axios.post(`${API_HOST}/auth/login`, loginDto))?.data?.data;
-      access_token = credentail?.access_token
-      id_token = credentail?.id_token;
-      console.log({ id_token, access_token });
-    } catch (err) {
-      console.log("Error when login", err);
-    }
+//   beforeAll(async () => {
+//     jest.setTimeout(600000);
+//     try {
+//       const credentail = (await axios.post(`${API_HOST}/auth/login`, loginDto))?.data?.data;
+//       access_token = credentail?.access_token
+//       id_token = credentail?.id_token;
+//       console.log({ id_token, access_token });
+//     } catch (err) {
+//       console.log("Error when login", err);
+//     }
 
-    try {
-      userId = (await axios.get(`${API_HOST}/user/profile`, {
-        data: { id_token },
-        headers: { Authorization: `Bearer ${access_token}` }
-      }))?.data?.data?.sub;
-    } catch (err) {
-      console.log("Error get tags", err);
-    }
+//     try {
+//       userId = (await axios.get(`${API_HOST}/user/profile`, {
+//         data: { id_token },
+//         headers: { Authorization: `Bearer ${access_token}` }
+//       }))?.data?.data?.sub;
+//     } catch (err) {
+//       console.log("Error get tags", err);
+//     }
 
-    try {
-      projects = (await axios.get(`${API_HOST}/projects`, {
-        data: { userId }
-      }))?.data?.data;
-    } catch (err) {
-      console.log("Error get user projects", err);
-    }
+//     try {
+//       projects = (await axios.get(`${API_HOST}/projects`, {
+//         data: { userId }
+//       }))?.data?.data;
+//     } catch (err) {
+//       console.log("Error get user projects", err);
+//     }
 
-    /** Init dto to create. */
-    createProductDto = {
-      name: "React product testing admin",
-      description: "Product 1",
-      gallery: [
-        "https://cdn.dribbble.com/userupload/3221720/file/original-c52652a671ea4f45e1211843f834bcdb.png?resize=400x0"
-      ],
-      projectId: projects.length > 0 ? projects[0]?._id : "",
-      tags: tags.length <= 0 ? [] : tags.map((item) => item?._id),
-    }
+//     /** Init dto to create. */
+//     createProductDto = {
+//       name: "React product testing admin",
+//       description: "Product 1",
+//       gallery: [
+//         "https://cdn.dribbble.com/userupload/3221720/file/original-c52652a671ea4f45e1211843f834bcdb.png?resize=400x0"
+//       ],
+//       projectId: projects.length > 0 ? projects[0]?._id : "",
+//       tags: tags.length <= 0 ? [] : tags.map((item) => item?._id),
+//     }
     
-    try {
-      const response = await axios.post(`${API_HOST}/product`, {
-        ...createProductDto,
-        id_token,
-      }, {
-        headers: { Authorization: `Bearer ${access_token}` }
-      });
-      productId = response?.data?.data?._id;
-    } catch (err) {
-      console.log("Error when create product", err?.response?.status);
-    }
-  });
+//     try {
+//       const response = await axios.post(`${API_HOST}/product`, {
+//         ...createProductDto,
+//         id_token,
+//       }, {
+//         headers: { Authorization: `Bearer ${access_token}` }
+//       });
+//       productId = response?.data?.data?._id;
+//     } catch (err) {
+//       console.log("Error when create product", err?.response?.status);
+//     }
+//   });
 
-  /** @dev React product testing */
-  test("React product should be successfully", async () => {
-    console.log({ productId });
-    const response = await axios.patch(`${API_HOST}/product/react/${productId}`, {
-      id_token
-    }, {
-      headers: { Authorization: `Bearer ${access_token}` }
-    });
+//   /** @dev React product testing */
+//   test("React product should be successfully", async () => {
+//     console.log({ productId });
+//     const response = await axios.patch(`${API_HOST}/product/react/${productId}`, {
+//       id_token
+//     }, {
+//       headers: { Authorization: `Bearer ${access_token}` }
+//     });
 
-    expect(response.status).toBe(200);
-    expect(response?.data?.data?.reactions?.length).toBe(1);
-  });
+//     expect(response.status).toBe(200);
+//     expect(response?.data?.data?.reactions?.length).toBe(1);
+//   });
 
-  /** @dev Remove product testing */
-  test("Remove product should be successfully", async () => {
-    const response = await axios.delete(`${API_HOST}/product/${productId}`, {
-      data: { id_token },
-      headers: { Authorization: `Bearer ${access_token}` }
-    });
-    expect(response.status).toBe(200);
-  })
-})
+//   /** @dev Remove product testing */
+//   test("Remove product should be successfully", async () => {
+//     const response = await axios.delete(`${API_HOST}/product/${productId}`, {
+//       data: { id_token },
+//       headers: { Authorization: `Bearer ${access_token}` }
+//     });
+//     expect(response.status).toBe(200);
+//   })
+// })

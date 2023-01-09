@@ -78,7 +78,7 @@ class ProjectController extends Controller
     /**
      * @todo Find in db following $id
      */
-    $project = Project::find($id);
+    $project = Project::where("_id", "=", $id);
 
     /**
      * @todo Return error when not found with the id.
@@ -88,6 +88,8 @@ class ProjectController extends Controller
         "data" => "Not Found"
       ], 401, [], JSON_PRETTY_PRINT);
     }
+
+    $project = $project->first();
 
     return response()->json([
       "data" => $project,

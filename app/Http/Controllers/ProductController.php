@@ -97,8 +97,8 @@ class ProductController extends Controller
       /**
        * @todo Find in db following $id
        */
-      $product = Product::find($id);
-
+      $product = Product::where("_id", "=", $id);
+      
       /**
        * @todo Return error when not found with the id.
        */
@@ -107,6 +107,8 @@ class ProductController extends Controller
           "data" => "Not Found"
         ], 401, [], JSON_PRETTY_PRINT);
       }
+
+      $product = $product->first();
 
       /**
        * @todo Assign user info to product
