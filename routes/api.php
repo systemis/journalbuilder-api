@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TagController;
@@ -194,6 +195,57 @@ Route::controller()
      */
     Route::patch("/user/password/reset/{userId}", [AdminController::class, "resetUserPassword"]);
   });
+
+/**
+ * @todo Group all api related project.
+ */
+Route::controller(ProjectController::class)
+  ->prefix(("project"))
+  ->middleware(['auth0.authorize.optional'])
+  ->group(function () {
+    /**
+     * @todo Create new project
+     * @var Project $project
+     * */
+    Route::post("/", "createProject");
+
+    /**
+     * @todo Edit user project
+     * @var EditDTO
+     */
+    Route::patch("/{id}", "editProject");
+
+    /**
+     * @todo Delete user project
+     * @var String $id
+     */
+    Route::delete("/{id}", "deleteProject");
+  });
+
+/**
+ * @todo Group all api related feedback feature.
+ */
+Route::controller(FeedbackController::class)
+  ->prefix(("feedback"))
+  ->middleware(['auth0.authorize.optional'])
+  ->group(function () {
+    /**
+     * @todo Create new feedback
+     * @var Product $feedback
+     * */
+    Route::post("/", "sendFeedback");
+
+    /**
+     * @todo Delete user feedback
+     * @var String $id
+     */
+    Route::delete("/", "deleteFeedback");
+  });
+
+/**
+ * @todo Use this route to get all feedback of a product.
+ */
+Route::get("/feedback/{productId}", [FeedbackController::class, "getProductFeedbacks"]);
 
 /**
  * @todo Get tags
