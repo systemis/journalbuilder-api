@@ -279,6 +279,12 @@ Route::post("/image", [ImageController::class, "uploadImage"]);
 Route::get("/products", [ProductController::class, "getProducts"]);
 
 /**
+ * @todo Get list product
+ * @var Params query
+ */
+Route::get("/products/liked", [ProductController::class, "getLikedProductsByUser"]);
+
+/**
  * @todo Get product detail
  * @var String id
  */

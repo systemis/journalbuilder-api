@@ -246,6 +246,33 @@ class ProductController extends Controller
     ], 200, [], JSON_PRETTY_PRINT);
   }
 
+ /**
+   * @todo The function to get product list of a user
+   */
+  public function getLikedProductsByUser(Request $request)
+  {
+    
+    $products = Product::where("reactions", "all", [$request->input("userId")])->get();
+    /**
+     * @todo Assign user info to product
+     */
+    foreach ($products as $product) {
+      $user = User::where("sub", "=", $product["userId"])->first();
+      if ($user) {
+        $product["owner"] = array(
+          "name" => $user["name"],
+          "picture" => $user["picture"],
+          "username" => $user["username"],
+        );
+      }
+    }
+
+    return response()->json([
+      "data" => $products,
+    ], 200, [], JSON_PRETTY_PRINT);
+  }
+
+
   /**
    * @todo The function to edit product of user
    */
